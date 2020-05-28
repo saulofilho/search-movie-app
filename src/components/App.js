@@ -1,5 +1,5 @@
-import React, { useReducer, useEffect } from "react";
-import '../App.css';
+import React, { useReducer } from "react";
+import '../styles/App.css';
 import Header from "./Header";
 import Movie from "./Movie";
 import spinner from "../assets/ajax-loader.gif";
@@ -10,31 +10,31 @@ import axios from "axios";
 // const MOVIE_API_URL = "https://www.omdbapi.com/?s=man&apikey=f96c20b2";
 // http://www.omdbapi.com/
 
-const MOVIE_API_URL = "https://www.omdbapi.com/apikey=f96c20b2";
+// const MOVIE_API_URL = "https://www.omdbapi.com/apikey=f96c20b2";
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    axios.get(MOVIE_API_URL).then(jsonResponse => {
-      dispatch({
-        type: "SEARCH_MOVIES_SUCCESS",
-        payload: jsonResponse.data.Search
-      });
-    });
-  }, []);
+  // useEffect(() => {
+  //   axios.get(MOVIE_API_URL).then(jsonResponse => {
+  //     dispatch({
+  //       type: "SEARCH_MOVIES_SUCCESS",
+  //       payload: jsonResponse.data.Search
+  //     });
+  //   });
+  // }, []);
 
-  // you can add this to the onClick listener of the Header component
   const refreshPage = () => {
     window.location.reload();
   };
 
-  const search = searchValue => {
+
+  const search = async (searchValue, page) => {
     dispatch({
       type: "SEARCH_MOVIES_REQUEST"
     });
 
-    axios(`https://www.omdbapi.com/?s=${searchValue}&apikey=f96c20b2`).then(
+    await axios(`https://www.omdbapi.com/?apikey=f96c20b2&s=${searchValue}&plot=full&page=${page}`).then(
       jsonResponse => {
         if (jsonResponse.data.Response === "True") {
           dispatch({
@@ -53,6 +53,8 @@ const App = () => {
 
   const { movies, errorMessage, loading } = state;
 
+  console.log('payload', movies)
+
   const retrievedMovies =
     loading && !errorMessage ? (
       <img className="spinner" src={spinner} alt="Loading spinner" />
@@ -68,14 +70,10 @@ const App = () => {
     <div className="App">
       <div className="m-container">
         <Header 
-          text="The Movie Information" 
+          text="movie poster" 
           click={refreshPage}
         />
-
         <Search search={search} />
-
-        <p className="App-intro">everything about movies</p>
-
         <div className="movies">{retrievedMovies}</div>
       </div>
     </div>
