@@ -1,40 +1,41 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
+import api from "../services/api";
 import '../styles/App.css';
 import Header from "./Header";
-import Movie from "./Movie";
-import spinner from "../assets/ajax-loader.gif";
+import Movies from "./Movies";
 import Search from "./Search";
 import { initialState, reducer } from "../store/reducer";
-import axios from "axios";
-
-// const MOVIE_API_URL = "https://www.omdbapi.com/?s=man&apikey=f96c20b2";
-// http://www.omdbapi.com/
-
-// const MOVIE_API_URL = "https://www.omdbapi.com/apikey=f96c20b2";
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [searchValue, setSearchValue] = useState("");
+  const [page, setPage] = useState(1);
 
-  // useEffect(() => {
-  //   axios.get(MOVIE_API_URL).then(jsonResponse => {
-  //     dispatch({
-  //       type: "SEARCH_MOVIES_SUCCESS",
-  //       payload: jsonResponse.data.Search
-  //     });
-  //   });
-  // }, []);
-
-  const refreshPage = () => {
-    window.location.reload();
+  const handleSearchInputChanges = e => {
+    setSearchValue(e.target.value);
   };
 
+  // const resetInputField = () => {
+  //   setSearchValue("");
+  // };
 
-  const search = async (searchValue, page) => {
+  const callSearchFunction = e => {
+    e.preventDefault();
+    search(searchValue, page);
+  };
+
+  const loadMore = e => {
+    e.preventDefault();
+    setPage(page + 1);
+    search(searchValue, page + 1);
+  };
+
+  async function search(searchValue, page) {
     dispatch({
       type: "SEARCH_MOVIES_REQUEST"
     });
 
-    await axios(`https://www.omdbapi.com/?apikey=f96c20b2&s=${searchValue}&plot=full&page=${page}`).then(
+    await api.get(`?apikey=f96c20b2&s=${searchValue}&plot=full&page=${page}`).then(
       jsonResponse => {
         if (jsonResponse.data.Response === "True") {
           dispatch({
@@ -49,32 +50,33 @@ const App = () => {
         }
       }
     );
+  }
+
+  const refreshPage = () => {
+    window.location.reload();
   };
 
   const { movies, errorMessage, loading } = state;
-
-  console.log('payload', movies)
-
-  const retrievedMovies =
-    loading && !errorMessage ? (
-      <img className="spinner" src={spinner} alt="Loading spinner" />
-    ) : errorMessage ? (
-      <div className="errorMessage">{errorMessage}</div>
-    ) : (
-      movies.map((movie, index) => (
-        <Movie key={`${index}-${movie.Title}`} movie={movie} />
-      ))
-    );
 
   return (
     <div className="App">
       <div className="m-container">
         <Header 
-          text="movie poster" 
           click={refreshPage}
         />
-        <Search search={search} />
-        <div className="movies">{retrievedMovies}</div>
+        <Search 
+          search={search} 
+          searchValue={searchValue}
+          handleSearchInputChanges={handleSearchInputChanges}
+          callSearchFunction={callSearchFunction}
+        />
+        <Movies 
+          movies={movies} 
+          loading={loading}
+          search={search}
+          loadMore={loadMore}
+          errorMessage={errorMessage}
+        />
       </div>
     </div>
   );
