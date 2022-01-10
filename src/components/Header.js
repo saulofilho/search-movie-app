@@ -4,7 +4,7 @@ const Header = props => {
   return (
     <header className="App-header">
       <h2 onClick={props.click}>
-        movies poster 
+        movie poster 
       </h2>
       <span>beta</span>
     </header>

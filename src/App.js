@@ -1,10 +1,10 @@
 import React, { useReducer, useState } from "react";
-import api from "../services/api";
-import '../styles/App.css';
-import Header from "./Header";
-import Movies from "./Movies";
-import Search from "./Search";
-import { initialState, reducer } from "../store/reducer";
+import api from "./services/api";
+import './styles/App.css';
+import Header from "./components/Header";
+import Movies from "./components/Movies";
+import Search from "./components/Search";
+import { initialState, reducer } from "./store/reducer";
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
